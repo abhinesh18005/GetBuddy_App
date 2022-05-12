@@ -16,6 +16,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,8 @@ public class ChatActivity extends AppCompatActivity {
     private Button send;
     private TextView message;
     private EditText enter_message;
+    private boolean flag;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,8 @@ public class ChatActivity extends AppCompatActivity {
         enter_message = findViewById(R.id.chat_enter_message);
         send = findViewById(R.id.chat_button);
 
+        start_download();
+
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,31 +49,103 @@ public class ChatActivity extends AppCompatActivity {
                 final String[] temp2 = {""};
                 enter_message.setText("");
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                DocumentReference docRef = db.collection("event").document(chat_id);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                Log.d("fetch data ff", "Name = " + document.getData().get("message"));
-                                temp2[0] = (String) document.getData().get("message".toString());
-                            } else {
-                                Log.d("fetch data", "No such document");
-                            }
-                        } else {
-                            Log.d("fetch data", "get failed with ", task.getException());
-                        }
-                    }
-                });
+                Log.d("chat id",chat_id);
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                String field_name = User.getInstance().getName() +":"+String.valueOf(timestamp.getTime());
+                DocumentReference docRef = db.collection("chat").document(chat_id);
+                docRef.update(field_name, temp1);
 
-                temp2[0]+=temp1;
-                Log.d("message", temp2[0]);
-                Map<String, Object> mapper = new HashMap<>();
-                mapper.put("message", temp2[0]);
-                db= FirebaseFirestore.getInstance();
-                db.collection("event").document(chat_id).update(mapper);
+//                Log.d("fetch data after", "Name = " + temp2[0]);
+//                docRef = db.collection("chat").document(chat_id);
+//                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            DocumentSnapshot document = task.getResult();
+//                            if (document.exists()) {
+//                                Log.d("Input message: ", "DocumentSnapshot data: " + document.getData());
+//                                ArrayList<String> arr = (ArrayList<String>) document.getData();
+//                                String ans = "";
+//                                for(String i:arr){
+//                                    String[] temp = i.split(":");
+//                                    ans+=temp[0]+" "+temp[temp.length-1]+"\n";
+//                                }
+//                                Log.d("answer",ans);
+//                            } else {
+//                                Log.d("Not found documents: ", "No such document");
+//                            }
+//                        } else {
+//                            Log.d("Failed message", "get failed with ", task.getException());
+//                        }
+//                    }
+//                });
+//                temp2[0]+=temp1;
+//                Log.d("fetch data after2", "Name = " + temp2[0]);
+//                Map<String, Object> mapper = new HashMap<>();
+//                mapper.put("Message", temp2[0]);
+//                db= FirebaseFirestore.getInstance();
+//                db.collection("event").document(chat_id).update(mapper);
+
             }
         });
+    }
+
+
+    public void start_download(){
+        flag=true;
+        Runnable runnable = new Runnable(){
+            public void run() {
+                while (flag) {
+                    Log.d("Download Thread chat", "in run");
+                    fetch_data();
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+    public void fetch_data() {
+
+        FirebaseFirestore db= FirebaseFirestore.getInstance();
+        Log.d("chat id",chat_id);
+        DocumentReference docRef = db.collection("chat").document(chat_id);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        Log.d("Input message: ", "DocumentSnapshot data: " + document.getData());
+                        Map<String, Object> arr = document.getData();
+                        String ans = "";
+                        for(String i:arr.keySet()){
+                            if(i.equals("Message")){
+                                continue;
+                            }
+
+                            String[] temp = i.split(":");
+                            ans+=temp[0]+" : "+arr.get(i)+"\n";
+                        }
+                        Log.d("answer",ans);
+
+                        message.setText(ans);
+                    } else {
+                        Log.d("fetch data", "No such document");
+                    }
+                } else {
+                    Log.d("fetch data", "get failed with ", task.getException());
+                }
+            }
+        });
+
     }
 }

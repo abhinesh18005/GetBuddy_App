@@ -1,5 +1,10 @@
 package com.example.myapplication;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import static com.example.myapplication.MyDatabase.myDatabase;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -27,7 +32,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 //
 //public class Form_for_host extends Fragment {
@@ -186,7 +193,7 @@ public class Form_for_host extends Fragment {
     private Button host_submit;
     private TextView slot;
     private TextView sport_name;
-//    public String chat_id ;
+    public String chat_id ;
     private String event_id;
     private String ss;
 
@@ -246,19 +253,11 @@ public class Form_for_host extends Fragment {
 
                 Map<String, Object> mapper = new HashMap<>();
                 mapper.put("Message","Welcome Everyone" );
-                final String[] chat_id = new String[1];
-                firebaseFirestore.collection("chat")
-                        .add(mapper)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                chat_id[0] = documentReference.getId().toString();
-                                Log.d("Value of chat id: ", "DocumentSnapshot written with ID: " + chat_id[0]);
-                                System.out.println("document id3: "+ chat_id[0]);
-                            }
-                        });
+                Date date = new Date();
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                String chat_name = String.valueOf(timestamp.getTime())+User.getInstance().getUser_id();
 
-                System.out.println("document id2: "+chat_id[0]);
+                firebaseFirestore.collection("chat").document(chat_name).set(mapper);
 
                 mapper = new HashMap<>();
 
@@ -267,19 +266,10 @@ public class Form_for_host extends Fragment {
                 mapper.put("team_size", slt);
                 mapper.put("location", location[0]);
                 mapper.put("slots",slt);
-                mapper.put("chat_id", chat_id[0]);
-
-                firebaseFirestore.collection("event")
-                        .add(mapper)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                event_id = documentReference.getId().toString();
-                                Log.d("Value of chat id: ", "DocumentSnapshot written with ID: " + documentReference.getId());
-                                System.out.println("document id: "+documentReference.getId());
-                            }
-                        });
-                create_event(s_name,location[0],zone[0],slt, chat_id[0],event_id);
+                mapper.put("chat_id", chat_name);
+                event_id = s_name+String.valueOf(timestamp.getTime())+User.getInstance().getUser_id();
+                firebaseFirestore.collection("event").document(event_id).set(mapper);
+                create_event(s_name,location[0],zone[0],slt, chat_name,event_id);
 
             }
         });

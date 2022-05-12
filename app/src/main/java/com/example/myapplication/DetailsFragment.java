@@ -48,6 +48,7 @@ public class DetailsFragment extends Fragment {
         Book_slots = view.findViewById(R.id.fragment_button);
 
         id = Data.getId();
+        Log.d("Details",id);
         show_data();
 
 
@@ -79,6 +80,7 @@ public class DetailsFragment extends Fragment {
 
                         Intent intent = new Intent(getActivity(), Participant_progress.class);
                         intent.putExtra("event_id",id);
+                        intent.putExtra("chat_id",Data.getChat_id());
                         startActivity(intent);
                     }else{
                         Toast.makeText(getActivity(),"No slots left for the event",Toast.LENGTH_SHORT).show();

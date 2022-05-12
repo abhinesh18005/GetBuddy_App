@@ -36,6 +36,7 @@ public class EventProgress extends AppCompatActivity {
     private Button chat;
     private static EventData eventData;
     private String event_id;
+    private String chat_id;
     private boolean flag;
 
     @Override
@@ -45,7 +46,7 @@ public class EventProgress extends AppCompatActivity {
         flag=true;
         eventData = (EventData)getIntent().getSerializableExtra("EventData");
         event_id = eventData.getId();
-
+        chat_id = eventData.getChat_id();
         Log.d("getData from event data", "val "+eventData.getId());
         Reached = findViewById(R.id.create_reached);
         Cancel = findViewById(R.id.create_cancel);
@@ -65,7 +66,8 @@ public class EventProgress extends AppCompatActivity {
         Reached.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteEvent(eventData.getId());
+                deleteEvent(eventData.getId(), "event");
+                deleteEvent(chat_id, "chat");
                 Intent intent = new Intent(getApplicationContext(), MainScreen.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -82,7 +84,8 @@ public class EventProgress extends AppCompatActivity {
                         .setCancelable(false)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                deleteEvent(eventData.getId());
+                                deleteEvent(eventData.getId(), "event");
+                                deleteEvent(chat_id, "chat");
                                 Log.d("Getter from met", "bhadwa");
                                 Intent intent = new Intent(getApplicationContext(), MainScreen.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -102,6 +105,7 @@ public class EventProgress extends AppCompatActivity {
         chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                flag=false;
                 Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
                 intent.putExtra("chat_id", eventData.getChat_id());
                 startActivity(intent);
@@ -116,9 +120,9 @@ public class EventProgress extends AppCompatActivity {
 
     }
 
-    static void deleteEvent(String id){
+    static void deleteEvent(String id, String name){
         FirebaseFirestore db= FirebaseFirestore.getInstance();
-        db.collection("event").document(eventData.getId()).delete();
+        db.collection(name).document(eventData.getId()).delete();
 
 
     }
@@ -131,7 +135,8 @@ public class EventProgress extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int id) {
-                        deleteEvent(eventData.getId());
+                        deleteEvent(eventData.getId(), "event");
+                        deleteEvent(chat_id, "chat");
                         Intent intent = new Intent(getApplicationContext(), MainScreen.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);

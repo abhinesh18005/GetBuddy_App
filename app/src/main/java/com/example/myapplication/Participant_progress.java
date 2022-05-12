@@ -25,12 +25,14 @@ public class Participant_progress extends AppCompatActivity {
 
     private boolean flag;
     private String event_id;
+    private String chat_id;
     private TextView Name;
     private TextView Location;
     private TextView Total_slots;
     private TextView Slots_left;
     private TextView Zone;
     private Button Cancel;
+    private Button chat;
 //    private String
 
    // private String id;
@@ -42,12 +44,15 @@ public class Participant_progress extends AppCompatActivity {
         setContentView(R.layout.participant_progress);
 
         event_id = getIntent().getStringExtra("event_id");
+        chat_id = getIntent().getStringExtra("chat_id");
+
         Name = findViewById(R.id.search_event_name);
         Location = findViewById(R.id.search_location);
         Total_slots = findViewById(R.id.search_total_slots);
         Zone = findViewById(R.id.search_zone);
         Cancel = findViewById(R.id.search_cancel);
         Slots_left = findViewById(R.id.search_rest_slots);
+        chat = findViewById(R.id.search_chat);
 
         Cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +61,15 @@ public class Participant_progress extends AppCompatActivity {
             }
         });
 
+        chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flag=false;
+                Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                intent.putExtra("chat_id", chat_id);
+                startActivity(intent);
+            }
+        });
 
         show_data();
         start_download();

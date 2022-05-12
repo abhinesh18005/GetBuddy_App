@@ -48,8 +48,8 @@ public class ListViewFragment extends Fragment implements BuddyAdapter.Communica
         DetailsFragment df = new DetailsFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("newsdata",nd);
+        System.out.println("data entry: "+nd.getName()+" "+nd.getLocation()+" "+nd.getTotal_slots()+" "+nd.getId()+" "+nd.getChat_id());
         df.setArguments(bundle);
-
         getFragmentManager().beginTransaction().replace(R.id.fragment,df).addToBackStack(null).commit();
 
     }
@@ -75,6 +75,7 @@ public class ListViewFragment extends Fragment implements BuddyAdapter.Communica
                                 String slots = (String) document.getData().get("team_size");
                                 String zone = (String) document.getData().get("zone");
                                 String id = (String) document.getId();
+
                                 String chat_id = (String)document.getData().get("chat_id");
                                 fun(name,location,zone,Integer.parseInt(slots),id,chat_id);
                                 Log.d("data",document.getId() + " => " + document.getData());
@@ -94,7 +95,7 @@ public class ListViewFragment extends Fragment implements BuddyAdapter.Communica
 
     public  void fun(String name,String location,String zone,int slots,String id,String chat_id){
 
-        EventList.getInstance().add_data(new EventData(name, location, zone, slots,id,chat_id));
+        EventList.getInstance().add_data(new EventData(name, location, zone, slots,chat_id,id));
         EventList.getInstance().Add_to_set(id);
         Log.d("fun", "size = " + EventList.getInstance().get_list_size());
         ba.notifyDataSetChanged();
