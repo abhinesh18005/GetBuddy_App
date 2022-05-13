@@ -63,6 +63,8 @@ public class DetailsFragment extends Fragment {
                 if(User.getInstance().getEvent_id().equals("none")){
                     Log.d("book","inside");
 
+
+
                     int total_slots = Integer.parseInt(Total_slots.getText().toString())-1;
 
                     if(total_slots>=0){
